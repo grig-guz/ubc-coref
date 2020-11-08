@@ -7,7 +7,7 @@ from tqdm import tqdm
 import networkx as nx
 import random
 
-from utils import *
+from ubc_coref.utils import *
 
 class Trainer:
     """ Class dedicated to training and evaluating the model
@@ -50,7 +50,7 @@ class Trainer:
                                                           num_warmup_steps=int(train_steps*0.1), 
                                                           num_training_steps=int(train_steps))
             
-        self.load_model("higher_finallyworks__20_.pth")
+        self.load_model("model_saves/higher_finallyworks__20_.pth")
 
     def train(self, num_epochs, eval_interval=2, *args, **kwargs):
         #with torch.no_grad():

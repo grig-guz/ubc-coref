@@ -13,7 +13,7 @@ from boltons.iterutils import pairwise
 from cached_property import cached_property
 import pickle
 
-from utils import *
+from ubc_coref.utils import *
 
 # Files with mergable clusters: ch_0050.v4_gold_conll, tc/ch/00/ch_0004_1
 

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from model_building_blocks import BertDocumentEncoder, MentionScore, HigherOrderScore
+from ubc_coref.model_building_blocks import BertDocumentEncoder, MentionScore, HigherOrderScore
 
 
 class CorefScore(nn.Module):

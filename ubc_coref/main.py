@@ -4,8 +4,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torchtext.vocab import Vectors
 
-from coref_model import CorefScore
-from trainer import Trainer
+from ubc_coref.coref_model import CorefScore
+from ubc_coref.trainer import Trainer
+from ubc_coref.loader import *
 
 import os
 import math
@@ -15,7 +16,6 @@ from random import sample
 from datetime import datetime
 from subprocess import Popen, PIPE
 from boltons.iterutils import pairwise
-from loader import *
         
 parser = argparse.ArgumentParser()
 parser.add_argument('--higher_order', type=int, required=True,

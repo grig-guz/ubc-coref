@@ -5,8 +5,8 @@ from transformers import BertModel
 
 import attr
 
-from utils import *
-from loader import Span
+from ubc_coref.utils import *
+from ubc_coref.loader import Span
 
 class Score(nn.Module):
     """ Generic scoring module
