@@ -5,7 +5,8 @@ This repository contains PyTorch reimplementation of the EMNLP paper ["BERT for 
 # Data
 The source code assumes access to the English train, test, and development data of OntoNotes Release 5.0. This data should be located in a folder called 'data' inside the main directory. The data consists of 2,802 training documents, 343 development documents, and 348 testing documents. The average length of all documents is 454 words with a maximum length of 4,009 words. The number of mentions and coreferences in each document varies drastically, but is generally correlated with document length.
 
-Since the data require a license from the Linguistic Data Consortium to use, they are thus not supplied here. Information on how to download and preprocess them can be found [here](http://conll.cemantix.org/2012/data.html) and [here](https://catalog.ldc.upenn.edu/LDC2013T19), respectively.
+Since the data require a license from the Linguistic Data Consortium to use, they are thus not supplied here. Information on how to download and preprocess them can be found [here](https://catalog.ldc.upenn.edu/LDC2013T19) and [here](https://github.com/ShannonAI/CorefQA/blob/master/scripts/data/preprocess_ontonotes_annfiles.sh
+), respectively.
 
 # Training
 First, install the requirements as specified in ```requirements.txt```
@@ -13,7 +14,7 @@ You can start training as follows:
 ```
 python main.py --train 
 ```
-You can add ```--pretrained_coref_path PATH ``` to the model save if the training was interrupted. 
+You can add ```--pretrained_coref_path PATH ``` with the path to the model save if the training was interrupted. The pretrained model can be downloaded [here](TODO).
 
 # Testing
 
