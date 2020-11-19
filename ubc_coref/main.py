@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from torchtext.vocab import Vectors
 
 from ubc_coref.coref_model import CorefScore
 from ubc_coref.trainer import Trainer
@@ -18,11 +17,12 @@ from subprocess import Popen, PIPE
 from boltons.iterutils import pairwise
         
 parser = argparse.ArgumentParser()
-parser.add_argument('--higher_order', type=int, required=True,
-                    help='whether to use higher-order (1) or pairwise model (0)')
+
 parser.add_argument('--debug', action='store_true', default=False, help='Debug mode')
 parser.add_argument('--distribute_model', action='store_true', default=False, 
                     help='Whether or not to spread the model across 3 GPUs')
+parser.add_argument('--pretrained_coref_path', default=None, 
+                    help='Path to pretrained model')
 parser.add_argument('--train', action='store_true', default=False, help='Train model')
 parser.add_argument('--test', action='store_true', default=False, help='Test model')
 
@@ -41,17 +41,19 @@ else:
     eval_interval = 3
 
 # Initialize model, train
-model = CorefScore(higher_order=bool(args.higher_order), distribute_model=args.distribute_model)
+model = CorefScore(distribute_model=args.distribute_model)
 
 if args.train:
     train_corpus, val_corpus = load_corpus_portion("train"), load_corpus_portion("val")
     trainer = Trainer(model, train_corpus, val_corpus, 
                       None, debug=args.debug, 
-                      distribute_model=args.distribute_model)
+                      distribute_model=args.distribute_model,
+                      pretrained_path=args.pretrained_coref_path)
     trainer.train(20, eval_interval=eval_interval)
 elif args.test:
     test_corpus = load_corpus_portion("test")
     trainer = Trainer(model, [], [], 
                       test_corpus, debug=args.debug, 
-                      distribute_model=args.distribute_model)
+                      distribute_model=args.distribute_model,
+                      pretrained_path=args.pretrained_coref_path)
     trainer.evaluate(test_corpus)

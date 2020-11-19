@@ -7,8 +7,7 @@ from ubc_coref.model_building_blocks import BertDocumentEncoder, MentionScore, H
 class CorefScore(nn.Module):
     """ Super class to compute coreference links between spans
     """
-    def __init__(self, higher_order,
-                       distribute_model=False,
+    def __init__(self, distribute_model=False,
                        distance_dim=20,
                        genre_dim=20,
                        speaker_dim=20):
@@ -26,19 +25,12 @@ class CorefScore(nn.Module):
         # gi, gj, gi*gj, distance between gi and gj
         gij_dim = gi_dim*3 + distance_dim + genre_dim + speaker_dim
         
-        if higher_order:
-            print("Running higher-order model.")
-            self.score_spans = MentionScore(gi_dim, attn_dim, distance_dim, L=30, 
-                                            distribute_model=distribute_model)
-            
-            self.score_pairs = HigherOrderScore(gij_dim, 
-                                                gi_dim, distance_dim, genre_dim, 
-                                                speaker_dim, K=50, N=2)
-        else:
-            print("Running pairwise model.")
-            self.score_spans = MentionScore(gi_dim, attn_dim, distance_dim, use_bert, 
-                                            L=30, distribute_model=distribute_model)
-            self.score_pairs = PairwiseScore(gij_dim, distance_dim, genre_dim, speaker_dim, K=250)
+        self.score_spans = MentionScore(gi_dim, attn_dim, distance_dim, L=30, 
+                                        distribute_model=distribute_model)
+
+        self.score_pairs = HigherOrderScore(gij_dim, 
+                                            gi_dim, distance_dim, genre_dim, 
+                                            speaker_dim, K=50, N=2)
             
 
     def forward(self, doc):
@@ -51,6 +43,7 @@ class CorefScore(nn.Module):
         
         # Get mention scores for each span, prune
         spans, g_i, mention_scores = self.score_spans(states, embeds, doc)
+        # If the document is too short
         if len(spans) <= 2:
             return None, None
         # Get pairwise scores for each span combo

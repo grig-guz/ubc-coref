@@ -1,3 +1,4 @@
+import os, io
 import torch.nn as nn
 from transformers import AdamW
 from transformers import get_linear_schedule_with_warmup
@@ -6,6 +7,7 @@ from itertools import chain
 from tqdm import tqdm
 import networkx as nx
 import random
+from subprocess import Popen, PIPE
 
 from ubc_coref.utils import *
 
@@ -13,12 +15,12 @@ class Trainer:
     """ Class dedicated to training and evaluating the model
     """
     def __init__(self, model, train_corpus, val_corpus, test_corpus,
-                    lr=1e-3, debug=False, distribute_model=False):
+                    debug=False, distribute_model=False,
+                    pretrained_path=None):
         self.__dict__.update(locals())
         self.debug = debug
         self.train_corpus = list(self.train_corpus)
         self.steps = len(self.train_corpus)
-        #self.val_corpus.docs = [doc for doc in self.val_corpus.docs if len(doc) <= 1600]
         self.test_corpus = test_corpus
         if self.debug:
             self.val_corpus.docs = [val_corpus.docs[0]]
@@ -45,26 +47,23 @@ class Trainer:
                                                      'lr': 1e-05}
                                     ],
                                     lr=0.0002, weight_decay=0.01)
+        
         train_steps = 20 * self.steps
         self.scheduler =  get_linear_schedule_with_warmup(self.optimizer, 
                                                           num_warmup_steps=int(train_steps*0.1), 
                                                           num_training_steps=int(train_steps))
-            
-        self.load_model("model_saves/higher_finallyworks__20_.pth")
+        self.start_epoch = 0
+        if pretrained_path is not None:
+            self.load_model(pretrained_path)
+        
 
-    def train(self, num_epochs, eval_interval=2, *args, **kwargs):
-        #with torch.no_grad():
-            #self.load_model_discourse("multitask_spanbert")
-        #    self.model.eval()
-        #    results = self.evaluate(self.val_corpus)
-        #    print(results)
-        #    return
+    def train(self, num_epochs, eval_interval=1, *args, **kwargs):
         """ Train a model """
-        for epoch in range(1, num_epochs+1):
+        for epoch in range(self.start_epoch + 1, num_epochs+1):
             self.train_epoch(epoch, *args, **kwargs)
 
             # Save often
-            self.save_model("model_save", epoch)
+            self.save_model("coref_model_saves/coref_model.pt", epoch)
             torch.cuda.empty_cache()
             # Evaluate every eval_interval epochs
             if epoch % eval_interval == 0:
@@ -80,12 +79,7 @@ class Trainer:
         # Set model to train (enables dropout)
         self.model.train()
         # Randomly sample documents from the train corpus
-        if self.debug:
-            batch = [self.train_corpus[722]]     
-            print(batch[0].filename)
-            print(batch[0].tokens)
-        else:
-            batch = random.sample(self.train_corpus, self.steps)
+        batch = random.sample(self.train_corpus, self.steps)
         epoch_loss, epoch_mentions, epoch_corefs, epoch_identified = [], [], [], []
         for i, document in enumerate(tqdm(batch)):
             
@@ -179,11 +173,11 @@ class Trainer:
         
         return torch.sum(loss)   
                          
-    def evaluate(self, corpus, eval_script='../src/eval/scorer.pl'):
+    def evaluate(self, corpus, eval_script='../ubc_coref/eval/scorer.pl'):
         """ Evaluate a corpus of CoNLL-2012 gold files """
 
         # Predict files
-        print('Evaluating on validation corpus...')
+        print('Evaluating the model...')
         predicted_docs = [self.predict(doc) for doc in tqdm(corpus)]
         
         corpus.docs = predicted_docs
@@ -318,6 +312,7 @@ class Trainer:
     def save_model(self, savepath, epoch):
         """ Save model state dictionary """
         torch.save({
+            'epoch': epoch,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
             'scheduler_state_dict': self.scheduler.state_dict(),
@@ -326,6 +321,7 @@ class Trainer:
     def load_model(self, loadpath):
         """ Load state dictionary into model """
         state_dict = torch.load(loadpath)
+        self.start_epoch = model_save['epoch']
         self.model.load_state_dict(state_dict['model_state_dict'])
         self.optimizer.load_state_dict(state_dict['optimizer_state_dict'])
         self.scheduler.load_state_dict(state_dict['scheduler_state_dict'])
