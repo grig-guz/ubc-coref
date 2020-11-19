@@ -8,8 +8,16 @@ The source code assumes access to the English train, test, and development data 
 Since the data require a license from the Linguistic Data Consortium to use, they are thus not supplied here. Information on how to download and preprocess them can be found [here](http://conll.cemantix.org/2012/data.html) and [here](https://catalog.ldc.upenn.edu/LDC2013T19), respectively.
 
 # Training
-
+First, install the requirements as specified in ```requirements.txt```
+You can start training as follows:
+```
+python main.py --train 
+```
+You can add ```--pretrained_coref_path PATH ``` to the model save if the training was interrupted. 
 
 # Testing
 
+```
+python main.py --test --pretrained_coref_path PATH
+```
 
