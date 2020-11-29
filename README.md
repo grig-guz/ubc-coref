@@ -19,7 +19,7 @@ You can start training as follows:
 ```
 python main.py --train 
 ```
-You can add ```--pretrained_coref_path PATH ``` with the path to the model save if the training was interrupted. The pretrained model can be downloaded [here](TODO).
+You can add ```--pretrained_coref_path PATH ``` with the path to the model save if the training was interrupted. The pretrained model can be downloaded [here](https://drive.google.com/file/d/1MDvxH3T1R_CC6NKc4tmX8eM_xD-hlBMS/view?usp=sharing).
 
 # Testing
 
