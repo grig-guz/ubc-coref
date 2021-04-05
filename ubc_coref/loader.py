@@ -387,6 +387,9 @@ def load_corpus_portion(corpus):
     if os.path.exists(full_path):
         corpus = pickle.load(open(full_path, 'rb'))
     else:
-        corpus = read_corpus('../data/' + corpus if corpus != 'val' else 'development')
+        if corpus == 'val':
+            corpus = 'development'
+        corpus = read_corpus('../data/' + corpus)
         pickle.dump(corpus, open(full_path, 'wb'))
+    print("Num docs: ", len(corpus.docs))
     return corpus

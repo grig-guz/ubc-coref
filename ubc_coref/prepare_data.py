@@ -1,4 +1,4 @@
-from loader import read_corpus
+from loader import load_corpus_portion
 
 load_corpus_portion("train")
 load_corpus_portion("val")
