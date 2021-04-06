@@ -38,7 +38,7 @@ if args.debug:
     torch.autograd.set_detect_anomaly(True)
     eval_interval = 100
 else:
-    eval_interval = 3
+    eval_interval = 20
 
 # Initialize model, train
 model = CorefScore(distribute_model=args.distribute_model)

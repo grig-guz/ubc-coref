@@ -321,7 +321,7 @@ class Trainer:
     def load_model(self, loadpath):
         """ Load state dictionary into model """
         state_dict = torch.load(loadpath)
-        self.start_epoch = model_save['epoch']
+        self.start_epoch = state_dict['epoch']
         self.model.load_state_dict(state_dict['model_state_dict'])
         self.optimizer.load_state_dict(state_dict['optimizer_state_dict'])
         self.scheduler.load_state_dict(state_dict['scheduler_state_dict'])
