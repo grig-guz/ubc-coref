@@ -251,7 +251,8 @@ class Trainer:
         graph = nx.Graph()
 
         # Pass the document through the model
-        spans, probs, embeds = self.model(doc)
+        with torch.no_grad():
+            spans, probs, embeds = self.model(doc)
 
         # Cluster found coreference links
         for i, span in enumerate(spans):
